@@ -5,5 +5,5 @@ Daten bleiben nur im Browser des Geräts (localStorage). Kein Server, keine Kont
 
 - Lokal starten: `python3 -m http.server 8765` im Ordner, dann http://localhost:8765/ öffnen
 - Datenlogik testen: `npm test` (node --test)
-- Browser-Test: Server starten, dann `python test/e2e.py [URL] [Screenshot-Ordner]` (benötigt `pip install playwright && playwright install chromium`)
+- Browser-Tests: Server starten, dann `python test/e2e.py [URL] [Screenshot-Ordner]` und `python test/e2e_drag.py [URL] [Screenshot-Ordner]` (benötigt `pip install playwright && playwright install chromium`)
 - iPhone: muss über HTTPS gehostet sein (z. B. GitHub Pages), dann in Safari „Teilen › Zum Home-Bildschirm“.

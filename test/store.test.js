@@ -70,3 +70,16 @@ test('Einstellung und Datum ohne Uhrzeit, datetime-local', () => {
   assert.equal(S.fromInputValue('2026-10-17T11:20'), now);
   assert.ok(Number.isNaN(S.fromInputValue('')));
 });
+
+test('Buttons umsortieren', () => {
+  let s = S.emptyState();
+  for (const id of ['a', 'b', 'c', 'd']) s = S.addButton(s, id.toUpperCase(), id);
+  s = S.addEntry(s, 'a', now, 'e');
+  const order = st => st.buttons.map(b => b.id).join('');
+  assert.equal(order(S.moveButton(s, 'a', 2)), 'bcad');
+  assert.equal(order(S.moveButton(s, 'd', 0)), 'dabc');
+  assert.equal(order(S.moveButton(s, 'b', 99)), 'acdb');
+  assert.equal(order(S.moveButton(s, 'c', -5)), 'cabd');
+  assert.equal(S.moveButton(s, 'x', 0), s);
+  assert.deepEqual(S.moveButton(s, 'a', 3).entries, s.entries);
+});

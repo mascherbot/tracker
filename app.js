@@ -12,7 +12,8 @@ function render() {
   $('main').hidden = !!current; $('detail').hidden = !current;
   if (!current) {
     $('buttons').innerHTML = state.buttons.length ? state.buttons.map(b => `
-      <div class="row">
+      <div class="row" data-id="${b.id}">
+        <span class="handle" aria-label="Verschieben">≡</span>
         <button class="track" data-track="${b.id}">${esc(b.name)}</button>
         <button class="list" data-open="${b.id}" aria-label="Liste ${esc(b.name)}">Liste ›</button>
       </div>`).join('') : '<p class="hint">Noch keine Buttons. Lege unten deinen ersten an.</p>';
@@ -75,6 +76,30 @@ $('editor').addEventListener('close', () => {
     set(S.updateEntry(state, editing, { ts: S.fromInputValue($('edit-ts').value), note: $('edit-note').value }));
   $('editor').returnValue = '';
 });
+
+// Buttons per Griff (≡) verschieben – Pointer Events, funktioniert mit Finger und Maus.
+let drag = null;
+$('buttons').addEventListener('pointerdown', ev => {
+  const h = ev.target.closest('.handle'); if (!h) return;
+  ev.preventDefault();
+  const rows = [...$('buttons').children], row = h.parentElement, from = rows.indexOf(row);
+  drag = { row, rows, from, to: from, y: ev.clientY, step: rows[1] ? rows[1].offsetTop - rows[0].offsetTop : 0,
+    mids: rows.map(r => r.offsetTop + r.offsetHeight / 2) };
+  h.setPointerCapture(ev.pointerId); row.classList.add('dragging');
+});
+$('buttons').addEventListener('pointermove', ev => {
+  if (!drag) return;
+  const dy = ev.clientY - drag.y, c = drag.mids[drag.from] + dy;
+  drag.row.style.transform = `translateY(${dy}px)`;
+  drag.to = drag.mids.filter((m, i) => i !== drag.from && m < c).length;
+  drag.rows.forEach((r, i) => {
+    const shift = i > drag.from && i <= drag.to ? -1 : i < drag.from && i >= drag.to ? 1 : 0;
+    if (r !== drag.row) r.style.transform = shift ? `translateY(${shift * drag.step}px)` : '';
+  });
+});
+const drop = () => { if (!drag) return; const { row, to } = drag; drag = null; set(S.moveButton(state, row.dataset.id, to)); };
+$('buttons').addEventListener('pointerup', drop);
+$('buttons').addEventListener('pointercancel', drop);
 
 $('showtime').addEventListener('change', ev => set(S.setSetting(state, 'showTime', ev.target.checked)));
 

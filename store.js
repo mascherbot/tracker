@@ -25,6 +25,14 @@ export function removeButton(s, id) {
   return { ...s, buttons: s.buttons.filter(b => b.id !== id), entries: s.entries.filter(e => e.buttonId !== id) };
 }
 
+export function moveButton(s, id, to) {
+  const from = s.buttons.findIndex(b => b.id === id);
+  if (from < 0) return s;
+  const buttons = [...s.buttons], [b] = buttons.splice(from, 1);
+  buttons.splice(Math.max(0, Math.min(to, buttons.length)), 0, b);
+  return { ...s, buttons };
+}
+
 export function addEntry(s, buttonId, ts = Date.now(), id = uid()) {
   return { ...s, entries: [...s.entries, { id, buttonId, ts, note: '' }] };
 }

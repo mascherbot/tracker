@@ -4,7 +4,11 @@ body { margin: 0; font: 17px/1.4 -apple-system, system-ui, sans-serif; backgroun
 h1 { font-size: 30px; margin: 8px 0 16px; word-break: break-word; }
 button, input { font: inherit; border: 0; border-radius: 14px; }
 button { cursor: pointer; color: inherit; background: #fff; }
-.row { display: flex; gap: 8px; margin-bottom: 12px; }
+.row { display: flex; gap: 8px; margin-bottom: 12px; position: relative; transition: transform .15s; }
+.row.dragging { transition: none; z-index: 1; }
+.row.dragging .track { box-shadow: 0 10px 24px rgba(0,0,0,.3); }
+.handle { display: flex; align-items: center; justify-content: center; width: 40px; flex: none; font-size: 28px; color: #8e8e93;
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: grab; }
 .track { flex: 1; min-height: 76px; font-size: 22px; font-weight: 600; background: #0a84ff; color: #fff; padding: 12px; transition: transform .1s; word-break: break-word; }
 .track:active { transform: scale(.97); }
 .track.flash { animation: flash .6s; }
