@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tracker">
+<meta name="theme-color" content="#f4f4f7">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-180.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="style.css">
+<title>Tracker</title>
+</head>
+<body>
+<section id="main">
+  <h1>Tracker</h1>
+  <div id="buttons"></div>
+  <form id="add">
+    <input id="name" placeholder="Name, z.&nbsp;B. Kopfweh" maxlength="40" autocomplete="off" aria-label="Name des neuen Buttons">
+    <button type="submit">Hinzufügen</button>
+  </form>
+</section>
+<section id="detail" hidden>
+  <button id="back" class="link">‹ Zurück</button>
+  <h1 id="title"></h1>
+  <div id="filters"></div>
+  <p id="count"></p>
+  <ul id="entries"></ul>
+  <button id="remove" class="danger">Button löschen</button>
+</section>
+<div id="toast" hidden><span id="toast-text"></span><button id="undo">Rückgängig</button></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>
