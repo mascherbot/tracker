@@ -1,8 +1,8 @@
 import * as S from './store.js';
 
 const KEY = 'tracker-v1';
-let state = (() => { try { return JSON.parse(localStorage.getItem(KEY)) || S.emptyState(); } catch { return S.emptyState(); } })();
-let current = null, period = '7d', toastTimer;
+let state = (() => { try { return S.normalize(JSON.parse(localStorage.getItem(KEY))); } catch { return S.emptyState(); } })();
+let current = null, period = '7d', editing = null, toastTimer;
 const $ = id => document.getElementById(id);
 const esc = t => t.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const save = () => localStorage.setItem(KEY, JSON.stringify(state));
@@ -20,21 +20,31 @@ function render() {
   }
   const b = state.buttons.find(x => x.id === current);
   if (!b) { current = null; return render(); }
-  const list = S.entriesFor(state, b.id, period);
+  const list = S.entriesFor(state, b.id, period), withTime = state.settings.showTime;
   $('title').textContent = b.name;
+  $('showtime').checked = withTime;
   $('filters').innerHTML = Object.entries(S.PERIODS).map(([k, v]) =>
     `<button data-period="${k}" class="${k === period ? 'on' : ''}">${v}</button>`).join('');
   $('count').textContent = `${list.length} ${list.length === 1 ? 'Eintrag' : 'Einträge'}`;
-  $('entries').innerHTML = list.map(e =>
-    `<li><span>${S.formatDate(e.ts)}</span><button data-del="${e.id}" aria-label="Eintrag löschen">✕</button></li>`).join('')
+  $('entries').innerHTML = list.map(e => `<li><button data-edit="${e.id}">
+      <span>${S.formatDate(e.ts, withTime)}</span>${e.note ? `<small>${esc(e.note)}</small>` : ''}<i>›</i></button></li>`).join('')
     || '<li class="hint">Keine Einträge in diesem Zeitraum.</li>';
 }
 
-function toast(text, undo) {
+function toast(text, id) {
   $('toast-text').textContent = text;
-  $('undo').hidden = !undo; $('undo').onclick = () => { undo(); $('toast').hidden = true; };
+  $('undo').onclick = () => { set(S.removeEntry(state, id)); $('toast').hidden = true; };
+  $('note-now').onclick = () => { $('toast').hidden = true; openEdit(id); };
   $('toast').hidden = false;
   clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').hidden = true, 5000);
+}
+
+function openEdit(id) {
+  const e = state.entries.find(x => x.id === id); if (!e) return;
+  editing = id;
+  $('edit-ts').value = S.toInputValue(e.ts);
+  $('edit-note').value = e.note;
+  $('editor').showModal();
 }
 
 document.addEventListener('click', ev => {
@@ -45,16 +55,28 @@ document.addEventListener('click', ev => {
     set(S.addEntry(state, d.track, ts, id));
     t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash');
     navigator.vibrate?.(30);
-    toast(`Gespeichert ${S.formatTime(ts)}`, () => set(S.removeEntry(state, id)));
+    toast(`Gespeichert ${S.formatTime(ts)}`, id);
   } else if (d.open) { current = d.open; period = '7d'; render(); scrollTo(0, 0); }
   else if (d.period) { period = d.period; render(); }
-  else if (d.del) { if (confirm('Diesen Eintrag löschen?')) set(S.removeEntry(state, d.del)); }
+  else if (d.edit) openEdit(d.edit);
   else if (t.id === 'back') { current = null; render(); }
-  else if (t.id === 'remove') {
+  else if (t.id === 'edit-delete') {
+    if (confirm('Diesen Eintrag löschen?')) { set(S.removeEntry(state, editing)); $('editor').close(); }
+  } else if (t.id === 'remove') {
     const b = state.buttons.find(x => x.id === current);
-    if (confirm(`Button „${b.name}“ und alle Einträge löschen?`)) { current = null; set(S.removeButton(state, b.id)); }
+    if (confirm(`Button „${b.name}“ löschen?`) && confirm('Möchten Sie den Button inkl. aller Einträge löschen?')) {
+      current = null; set(S.removeButton(state, b.id));
+    }
   }
 });
+
+$('editor').addEventListener('close', () => {
+  if ($('editor').returnValue === 'save' && state.entries.some(e => e.id === editing))
+    set(S.updateEntry(state, editing, { ts: S.fromInputValue($('edit-ts').value), note: $('edit-note').value }));
+  $('editor').returnValue = '';
+});
+
+$('showtime').addEventListener('change', ev => set(S.setSetting(state, 'showTime', ev.target.checked)));
 
 $('add').addEventListener('submit', ev => {
   ev.preventDefault();

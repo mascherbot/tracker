@@ -41,3 +41,32 @@ test('Deutsches Datumsformat', () => {
   assert.equal(S.formatDate(new Date(2026, 0, 5, 9, 3).getTime()), 'Mo, 05.01.2026, 09:03');
   assert.equal(S.formatTime(now), '11:20');
 });
+
+test('Eintrag bearbeiten: Datum und Kommentar', () => {
+  let s = S.addEntry(S.emptyState(), 'a', now, 'e1');
+  s = S.addEntry(s, 'a', now - day, 'e2');
+  s = S.updateEntry(s, 'e1', { ts: now - 3 * day, note: '  leichte Kopfschmerzen ' });
+  assert.deepEqual(S.entriesFor(s, 'a', 'all', now).map(e => e.id), ['e2', 'e1']);  // neu sortiert
+  assert.equal(s.entries[0].note, 'leichte Kopfschmerzen');
+  s = S.updateEntry(s, 'e1', { ts: NaN, note: '' });  // ungültiges Datum ändert nichts
+  assert.equal(s.entries[0].ts, now - 3 * day);
+  assert.equal(s.entries[0].note, '');
+});
+
+test('Migration alter Daten (v1 ohne Kommentar/Einstellungen)', () => {
+  const old = { buttons: [{ id: 'b', name: 'Kopfweh' }], entries: [{ id: 'e', buttonId: 'b', ts: now }] };
+  const s = S.normalize(JSON.parse(JSON.stringify(old)));
+  assert.deepEqual(s.buttons, old.buttons);
+  assert.deepEqual(s.entries, [{ id: 'e', buttonId: 'b', ts: now, note: '' }]);
+  assert.equal(s.settings.showTime, true);
+  assert.deepEqual(S.normalize(null), S.emptyState());
+  assert.equal(S.normalize({ ...old, settings: { showTime: false } }).settings.showTime, false);
+});
+
+test('Einstellung und Datum ohne Uhrzeit, datetime-local', () => {
+  assert.equal(S.setSetting(S.emptyState(), 'showTime', false).settings.showTime, false);
+  assert.equal(S.formatDate(now, false), 'Sa, 17.10.2026');
+  assert.equal(S.toInputValue(now), '2026-10-17T11:20');
+  assert.equal(S.fromInputValue('2026-10-17T11:20'), now);
+  assert.ok(Number.isNaN(S.fromInputValue('')));
+});
