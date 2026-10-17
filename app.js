@@ -51,6 +51,7 @@ function openEdit(id) {
 document.addEventListener('click', ev => {
   const t = ev.target.closest('button'); if (!t) return;
   const d = t.dataset;
+  if (d.track && $('main').classList.contains('editing')) return;  // im Bearbeiten-Modus nichts speichern
   if (d.track) {
     const id = Math.random().toString(36).slice(2), ts = Date.now();
     set(S.addEntry(state, d.track, ts, id));
@@ -60,6 +61,7 @@ document.addEventListener('click', ev => {
   } else if (d.open) { current = d.open; period = '7d'; render(); scrollTo(0, 0); }
   else if (d.period) { period = d.period; render(); }
   else if (d.edit) openEdit(d.edit);
+  else if (t.id === 'editmode') t.textContent = $('main').classList.toggle('editing') ? 'Fertig' : 'Bearbeiten';
   else if (t.id === 'back') { current = null; render(); }
   else if (t.id === 'edit-delete') {
     if (confirm('Diesen Eintrag löschen?')) { set(S.removeEntry(state, editing)); $('editor').close(); }

@@ -19,7 +19,14 @@ with sync_playwright() as p:
     pg.goto(URL); pg.evaluate('localStorage.clear()'); pg.reload()
     for n in ['Kopfweh', 'Müde', 'Schwindel', 'Übelkeit']:
         pg.fill('#name', n); pg.click('#add button')
-    pg.screenshot(path=f'{SHOTS}/08-main-mit-griffen.png')
+    # Normalmodus: keine Griffe
+    handles = pg.locator('.handle')
+    expect(pg.locator('#editmode')).to_have_text('Bearbeiten')
+    for i in range(4): expect(handles.nth(i)).to_be_hidden()
+    pg.screenshot(path=f'{SHOTS}/08-main-normal.png')
+    pg.click('#editmode'); expect(pg.locator('#editmode')).to_have_text('Fertig')
+    for i in range(4): expect(handles.nth(i)).to_be_visible()
+    pg.screenshot(path=f'{SHOTS}/11-main-bearbeiten.png')
 
     # Kopfweh am Griff nach unten zwischen Schwindel und Übelkeit ziehen
     h = pg.locator('.row', has_text='Kopfweh').locator('.handle').bounding_box()
@@ -44,7 +51,13 @@ with sync_playwright() as p:
     touch('touchEnd')
     expect(pg.locator('.track')).to_have_text(['Übelkeit', 'Müde', 'Schwindel', 'Kopfweh'])
 
-    pg.reload()
+    # Im Bearbeiten-Modus speichert ein Tipp nichts
+    pg.locator('.track', has_text='Müde').tap(); time.sleep(0.2)
+    assert stored()['entries'] == [] and pg.locator('#toast').is_hidden()
+    pg.click('#editmode'); expect(pg.locator('#editmode')).to_have_text('Bearbeiten')
+    for i in range(4): expect(handles.nth(i)).to_be_hidden()
+    pg.click('#editmode'); pg.reload()   # Modus wird nicht gespeichert
+    expect(pg.locator('#editmode')).to_have_text('Bearbeiten'); expect(handles.first).to_be_hidden()
     expect(pg.locator('.track')).to_have_text(['Übelkeit', 'Müde', 'Schwindel', 'Kopfweh'])
     assert not pg.locator('.row[style*=transform]').count()
 

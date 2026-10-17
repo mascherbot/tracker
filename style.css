@@ -7,7 +7,7 @@ button { cursor: pointer; color: inherit; background: #fff; }
 .row { display: flex; gap: 8px; margin-bottom: 12px; position: relative; transition: transform .15s; }
 .row.dragging { transition: none; z-index: 1; }
 .row.dragging .track { box-shadow: 0 10px 24px rgba(0,0,0,.3); }
-.handle { display: flex; align-items: center; justify-content: center; width: 40px; flex: none; font-size: 28px; color: #8e8e93;
+.handle { display: none; align-items: center; justify-content: center; width: 40px; flex: none; font-size: 28px; color: #8e8e93;
   touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: grab; }
 .track { flex: 1; min-height: 76px; font-size: 22px; font-weight: 600; background: #0a84ff; color: #fff; padding: 12px; transition: transform .1s; word-break: break-word; }
 .track:active { transform: scale(.97); }
@@ -52,3 +52,7 @@ dialog .danger { margin-top: 12px; }
 #toast button { flex: 1; }
 #toast button { background: #3a3a3c; color: #fff; min-height: 44px; padding: 0 14px; font-weight: 600; }
 [hidden] { display: none !important; }
+header { display: flex; align-items: center; justify-content: space-between; }
+#editmode { font-size: 17px; padding: 10px 4px; }
+.editing .handle { display: flex; }
+.editing .track { opacity: .6; }
