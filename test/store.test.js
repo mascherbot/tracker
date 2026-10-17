@@ -33,7 +33,7 @@ test('Zeitraum-Filter', () => {
   assert.deepEqual(ids('month'), ['d1', 'd6', 'd8', 'd20']);
   assert.deepEqual(ids('year'), ['d1', 'd6', 'd8', 'd20', 'd40', 'd200']);
   assert.equal(ids('all').length, 7);
-  assert.deepEqual(Object.keys(S.PERIODS), ['month', 'year', 'all']);
+  assert.deepEqual(Object.keys(S.PERIODS), ['all', 'month', 'year']);
 });
 
 test('Deutsches Datumsformat', () => {

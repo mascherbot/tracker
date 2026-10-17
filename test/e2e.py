@@ -24,14 +24,14 @@ with sync_playwright() as p:
     pg.evaluate("""() => localStorage.setItem('tracker-v1', JSON.stringify({buttons:[{id:'b1',name:'Kopfweh'}],
       entries:[{id:'o1',buttonId:'b1',ts:Date.now()-3600e3},{id:'o2',buttonId:'b1',ts:Date.now()-40*864e5}]}))""")
     pg.reload()
-    pg.locator('[data-open]').first.tap(); count(1)   # Standard: Letzter Monat
-    expect(pg.locator('#filters button')).to_have_text(['Letzter Monat', 'Letztes Jahr', 'Alles'])
-    expect(pg.locator('#filters .on')).to_have_text('Letzter Monat')
+    pg.locator('[data-open]').first.tap(); count(2)   # Standard: Alles
+    expect(pg.locator('#filters button')).to_have_text(['Alles', 'Letzter Monat', 'Letztes Jahr'])
+    expect(pg.locator('#filters .on')).to_have_text('Alles')
     assert len({round(pg.locator('#filters button').nth(i).bounding_box()['y']) for i in range(3)}) == 1  # eine Zeile
     sw, bk = pg.locator('#showtime').bounding_box(), pg.locator('#back').bounding_box()
     assert abs((sw['y'] + sw['height'] / 2) - (bk['y'] + bk['height'] / 2)) < 8 and sw['x'] > 250, (sw, bk)  # oben rechts
     expect(pg.locator('#showtime')).to_have_attribute('aria-label', 'Uhrzeit anzeigen')
-    pg.click('[data-period=all]'); count(2)
+    pg.click('[data-period=month]'); count(1)
     pg.click('#back')
 
     # 2) Neuer Button, 3x tippen, Kommentar direkt über den Toast
@@ -61,6 +61,8 @@ with sync_playwright() as p:
     # Abbrechen ändert nichts
     pg.locator('#entries [data-edit]').first.click(); pg.fill('#edit-note', 'XXX'); pg.click('#editor button[value=cancel]')
     expect(pg.locator('#entries')).not_to_contain_text('XXX')
+    pg.click('#back'); pg.locator('[data-open]').first.tap()   # Standard beim erneuten Öffnen wieder Alles
+    expect(pg.locator('#filters .on')).to_have_text('Alles'); count(5)
     pg.screenshot(path=f'{SHOTS}/05-list-kommentare-mit-uhrzeit.png')
 
     # 4) Schalter Uhrzeit aus, Persistenz nach Reload

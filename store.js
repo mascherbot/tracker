@@ -1,5 +1,5 @@
 // Reine Datenlogik (ohne DOM) – im Browser und in Node testbar.
-export const PERIODS = { month: 'Letzter Monat', year: 'Letztes Jahr', all: 'Alles' };
+export const PERIODS = { all: 'Alles', month: 'Letzter Monat', year: 'Letztes Jahr' };
 const DAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 
