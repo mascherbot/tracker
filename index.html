@@ -24,10 +24,15 @@
   </form>
 </section>
 <section id="detail" hidden>
-  <button id="back" class="link">‹ Zurück</button>
+  <header>
+    <button id="back" class="link">‹ Zurück</button>
+    <label class="switch" title="Uhrzeit anzeigen">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <input type="checkbox" id="showtime" role="switch" aria-label="Uhrzeit anzeigen">
+    </label>
+  </header>
   <h1 id="title"></h1>
   <div id="filters"></div>
-  <label class="switch">Uhrzeit anzeigen <input type="checkbox" id="showtime" role="switch"></label>
   <p id="count"></p>
   <ul id="entries"></ul>
   <button id="remove" class="danger">Button löschen</button>

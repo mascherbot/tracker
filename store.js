@@ -1,5 +1,5 @@
 // Reine Datenlogik (ohne DOM) – im Browser und in Node testbar.
-export const PERIODS = { '7d': 'Letzte 7 Tage', month: 'Letzter Monat', year: 'Letztes Jahr', all: 'Alles' };
+export const PERIODS = { month: 'Letzter Monat', year: 'Letztes Jahr', all: 'Alles' };
 const DAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 
@@ -50,8 +50,7 @@ export const setSetting = (s, key, value) => ({ ...s, settings: { ...s.settings,
 
 export function periodStart(period, now = Date.now()) {
   const d = new Date(now);
-  if (period === '7d') d.setDate(d.getDate() - 7);
-  else if (period === 'month') d.setMonth(d.getMonth() - 1);
+  if (period === 'month') d.setMonth(d.getMonth() - 1);
   else if (period === 'year') d.setFullYear(d.getFullYear() - 1);
   else return -Infinity;
   return d.getTime();

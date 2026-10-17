@@ -24,7 +24,13 @@ with sync_playwright() as p:
     pg.evaluate("""() => localStorage.setItem('tracker-v1', JSON.stringify({buttons:[{id:'b1',name:'Kopfweh'}],
       entries:[{id:'o1',buttonId:'b1',ts:Date.now()-3600e3},{id:'o2',buttonId:'b1',ts:Date.now()-40*864e5}]}))""")
     pg.reload()
-    pg.locator('[data-open]').first.tap(); count(1)
+    pg.locator('[data-open]').first.tap(); count(1)   # Standard: Letzter Monat
+    expect(pg.locator('#filters button')).to_have_text(['Letzter Monat', 'Letztes Jahr', 'Alles'])
+    expect(pg.locator('#filters .on')).to_have_text('Letzter Monat')
+    assert len({round(pg.locator('#filters button').nth(i).bounding_box()['y']) for i in range(3)}) == 1  # eine Zeile
+    sw, bk = pg.locator('#showtime').bounding_box(), pg.locator('#back').bounding_box()
+    assert abs((sw['y'] + sw['height'] / 2) - (bk['y'] + bk['height'] / 2)) < 8 and sw['x'] > 250, (sw, bk)  # oben rechts
+    expect(pg.locator('#showtime')).to_have_attribute('aria-label', 'Uhrzeit anzeigen')
     pg.click('[data-period=all]'); count(2)
     pg.click('#back')
 
@@ -48,9 +54,10 @@ with sync_playwright() as p:
     pg.fill('#edit-ts', f'{target:%Y-%m-%d}T08:15'); pg.fill('#edit-note', 'leichte Kopfschmerzen')
     time.sleep(0.3); pg.screenshot(path=f'{SHOTS}/04-edit-dialog.png')
     pg.click('#editor button[value=save]')
+    expect(pg.locator('#entries [data-edit]').last).to_contain_text(f'{exp}, 08:15')  # close-Event ist asynchron
     texts = pg.locator('#entries [data-edit]').all_inner_texts()
     assert texts[-1].startswith(f'{exp}, 08:15') and 'leichte Kopfschmerzen' in texts[-1], texts  # neu sortiert
-    pg.click('[data-period="7d"]'); count(5)   # jetzt innerhalb der letzten 7 Tage
+    pg.click('[data-period=month]'); count(5)   # jetzt innerhalb des letzten Monats
     # Abbrechen ändert nichts
     pg.locator('#entries [data-edit]').first.click(); pg.fill('#edit-note', 'XXX'); pg.click('#editor button[value=cancel]')
     expect(pg.locator('#entries')).not_to_contain_text('XXX')

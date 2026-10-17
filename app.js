@@ -2,7 +2,7 @@ import * as S from './store.js';
 
 const KEY = 'tracker-v1';
 let state = (() => { try { return S.normalize(JSON.parse(localStorage.getItem(KEY))); } catch { return S.emptyState(); } })();
-let current = null, period = '7d', editing = null, toastTimer;
+let current = null, period = 'month', editing = null, toastTimer;
 const $ = id => document.getElementById(id);
 const esc = t => t.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const save = () => localStorage.setItem(KEY, JSON.stringify(state));
@@ -58,7 +58,7 @@ document.addEventListener('click', ev => {
     t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash');
     navigator.vibrate?.(30);
     toast(`Gespeichert ${S.formatTime(ts)}`, id);
-  } else if (d.open) { current = d.open; period = '7d'; render(); scrollTo(0, 0); }
+  } else if (d.open) { current = d.open; period = 'month'; render(); scrollTo(0, 0); }
   else if (d.period) { period = d.period; render(); }
   else if (d.edit) openEdit(d.edit);
   else if (t.id === 'editmode') t.textContent = $('main').classList.toggle('editing') ? 'Fertig' : 'Bearbeiten';

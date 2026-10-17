@@ -30,10 +30,10 @@ test('Zeitraum-Filter', () => {
   const ages = { d1: 1, d6: 6, d8: 8, d20: 20, d40: 40, d200: 200, d400: 400 };
   for (const [id, a] of Object.entries(ages)) s = S.addEntry(s, 'a', now - a * day, id);
   const ids = p => S.entriesFor(s, 'a', p, now).map(e => e.id);
-  assert.deepEqual(ids('7d'), ['d1', 'd6']);
   assert.deepEqual(ids('month'), ['d1', 'd6', 'd8', 'd20']);
   assert.deepEqual(ids('year'), ['d1', 'd6', 'd8', 'd20', 'd40', 'd200']);
   assert.equal(ids('all').length, 7);
+  assert.deepEqual(Object.keys(S.PERIODS), ['month', 'year', 'all']);
 });
 
 test('Deutsches Datumsformat', () => {
